@@ -1,0 +1,12 @@
+{
+  "folders": [
+    {
+      "path": "src/ba_toolkit",
+      "name": "Blender Addon"
+    },
+    {
+      "path": ".",
+      "name": "Project Root"
+    }
+  ]
+}
