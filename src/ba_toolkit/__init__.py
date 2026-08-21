@@ -1,3 +1,7 @@
+from .operators import model_importer, mouth_separator
+import bpy
+
+
 bl_info = {
     "name": "BA Toolkit for Blender",
     "author": "AkagawaTsurunaki",
@@ -8,8 +12,6 @@ bl_info = {
     "category": "Material",
 }
 
-import bpy
-from . import operators
 
 class BAToolkitPanel(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
@@ -22,20 +24,25 @@ class BAToolkitPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        obj = context.object
+        if layout:
+            row = layout.row()
+            if row is not None:
+                row.operator(model_importer.ModelImporter.bl_idname)
 
-        row = layout.row()
-        row.operator(operators.AnimatorImporter.bl_idname)
-
+            row = layout.row()
+            if row is not None:
+                row.operator(mouth_separator.MouthSeparator.bl_idname)
 
 
 def register():
-    bpy.utils.register_class(operators.AnimatorImporter)
+    bpy.utils.register_class(model_importer.ModelImporter)
+    bpy.utils.register_class(mouth_separator.MouthSeparator)
     bpy.utils.register_class(BAToolkitPanel)
 
 
 def unregister():
-    bpy.utils.unregister_class(operators.AnimatorImporter)
+    bpy.utils.unregister_class(model_importer.ModelImporter)
+    bpy.utils.unregister_class(mouth_separator.MouthSeparator)
     bpy.utils.unregister_class(BAToolkitPanel)
 
 

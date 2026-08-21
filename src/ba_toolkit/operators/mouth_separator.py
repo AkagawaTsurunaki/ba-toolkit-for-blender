@@ -1,0 +1,167 @@
+from mathutils.bvhtree import BVHTree  # type: ignore
+from mathutils import Vector  # type: ignore
+import re
+from typing import List
+
+import bpy  # type: ignore
+import bmesh  # type: ignore
+
+
+def _find_armatures(root):
+    found = []
+
+    def _search(obj):
+        if hasattr(obj, 'type') and obj.type == 'ARMATURE':
+            found.append(obj)
+        if hasattr(obj, 'children'):
+            for child in obj.children:
+                _search(child)
+        if hasattr(obj, 'objects'):
+            for obj_in_coll in obj.objects:
+                _search(obj_in_coll)
+
+    _search(root)
+    return found
+
+
+def _find_meshes(root_obj):
+    found = []
+
+    def _search(obj):
+        if obj.type == 'MESH':
+            found.append(obj)
+        for child in obj.children:
+            _search(child)
+
+    _search(root_obj)
+    return found
+
+
+def _find_bones_by_pattern(obj, pattern) -> List[bpy.types.Bone]:
+    if not obj or obj.type != 'ARMATURE':
+        return []
+
+    matched = []
+    for bone in obj.data.bones:
+        name = bone.name
+        if re.search(pattern, name, re.IGNORECASE):
+            matched.append(bone)
+
+    return matched
+
+
+def _get_bone_world_pos(armature_obj, bone, use_head=True):
+    local_pos = bone.head_local if use_head else bone.tail_local
+    return armature_obj.matrix_world @ local_pos
+
+
+def _raycast_against_mesh(mesh_obj, origin_world, direction_world, max_dist=10.0):
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = mesh_obj.evaluated_get(depsgraph)
+
+    bvh = BVHTree.FromObject(eval_obj, depsgraph)  # type: ignore
+
+    to_local = mesh_obj.matrix_world.inverted()
+    origin_local = to_local @ origin_world
+    direction_local = (to_local.to_3x3() @ direction_world).normalized()
+
+    loc, normal, idx, dist = bvh.ray_cast(
+        origin_local, direction_local, max_dist)
+
+    if loc is None:
+        return None, None, None, None
+
+    hit_world = mesh_obj.matrix_world @ loc
+    normal_world = (mesh_obj.matrix_world.to_3x3() @ normal).normalized()
+
+    return hit_world, normal_world, idx, dist
+
+
+class MouthSeparator(bpy.types.Operator):
+    bl_idname = "ba_toolkit_for_blender.mouth_separator"
+    bl_label = "Auto Separate Mouth"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        # @AUTHOR AkagawaTsurunaki
+        # Almost all the character models have a head bone,
+        # and the head bone is just behind the mouth area.
+        #
+        # Raycast mouth separation algorithm
+        # 1. We search for the armature (should be only one) of the imported character model .
+        # 2. And get the position of the head bone (should be only one) of the armature.
+        # 3. Then we cast a ray from the head bone position in the forward direction (Y axis)
+        #    to find the mouth area on the mesh.
+        #    We try to find the mouth area by raycasting in 2 modes:
+        #    3.a Outside the head
+        #    3.b Inside the head
+        # 4. Link, split and separate the selected faces as a MOUTH mesh.
+
+        ch_obj = bpy.context.active_object
+        armatures = _find_armatures(ch_obj)
+        assert len(armatures) == 1, \
+            f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
+        armature = armatures[0]
+        head_bones = _find_bones_by_pattern(armature, R"Head")
+
+        assert len(head_bones) == 1, \
+            f'There should be exactly one bone containing "Head" in the name. Now we have:\n{head_bones}'
+        head_bone = head_bones[0]
+
+        # Get head bone origin position in world space
+        origin = _get_bone_world_pos(armature, head_bone, use_head=True)
+        direction = Vector((0, 1, 0))
+
+        meshes = _find_meshes(ch_obj)
+        assert len(meshes) >= 1, "No mesh found under selected object"
+        mesh = meshes[0]
+
+        # Raycast in 2 modes
+        ray_origin = origin - direction * 10.0
+        hit, normal, face_idx, dist = _raycast_against_mesh(
+            mesh, ray_origin, direction)
+        if not hit:
+            hit, normal, face_idx, dist = _raycast_against_mesh(
+                mesh, origin, -direction)
+
+        if not hit:
+            self.report(
+                {'ERROR'}, "Raycast did not hit any face. Try separating mouth faces manually.")
+            return {'CANCELLED'}
+
+        # Separate the selected faces as a new mesh object
+        context.view_layer.objects.active = mesh  # type: ignore
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_mode(type='FACE')
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        # Why?
+        # Use the hit position to find the closest face in the original mesh
+        # To avoid index mismatch with the evaluated mesh which may have modifiers.
+        bm = bmesh.from_edit_mesh(mesh.data)
+        bm.faces.ensure_lookup_table()
+
+        hit_local = mesh.matrix_world.inverted() @ hit
+        target_face = min(bm.faces, key=lambda f: (
+            f.calc_center_median() - hit_local).length)
+        target_face.select = True
+        bmesh.update_edit_mesh(mesh.data)
+
+        # Link, split and separate the selected faces
+        bpy.ops.mesh.select_linked()
+        selected_count = sum(1 for f in bm.faces if f.select)
+        self.report({'INFO'}, f"{selected_count} faces selected.")
+
+        bpy.ops.mesh.split()
+        bpy.ops.mesh.separate(type='SELECTED')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        # Rename the new mesh as *_Mouth
+        for obj in context.selected_objects:  # type: ignore
+            if obj != mesh and obj.type == 'MESH':
+                obj.name = f"{mesh.name}_Mouth"
+                break
+
+        self.report(
+            {'INFO'}, "Separated mouth mesh successfully. Check it if it is correct. If not, try separating mouth faces manually.")
+        return {'FINISHED'}
