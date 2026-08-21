@@ -27,11 +27,13 @@ class BAToolkitPanel(bpy.types.Panel):
         if layout:
             row = layout.row()
             if row is not None:
-                row.operator(model_importer.ModelImporter.bl_idname)
+                row.operator(model_importer.ModelImporter.bl_idname,
+                             icon=model_importer.ModelImporter.bl_icon)  # type: ignore
 
             row = layout.row()
             if row is not None:
-                row.operator(mouth_separator.MouthSeparator.bl_idname)
+                row.operator(mouth_separator.MouthSeparator.bl_idname,
+                             icon=mouth_separator.MouthSeparator.bl_icon)  # type: ignore
 
 
 def register():

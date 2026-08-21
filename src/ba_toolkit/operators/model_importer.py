@@ -7,13 +7,15 @@ from ..common.analyzer import get_animator_schema
 
 class ModelImporter(bpy.types.Operator):
     bl_idname = "ba_toolkit_for_blender.model_importer"
-    bl_label = "Import from Folder (Original)"
+    bl_label = "Import from Folder"
     bl_options = {'REGISTER', 'UNDO'}
+    bl_icon = 'IMPORT'
+    bl_description = "Import model from specific folder containing FBX and texture files (.png) exported from Assets Studio.\n"\
+        "For example, D:/AssetsStudioOutput/Animator/Aris_Original"
     directory: StringProperty(
         name="Model Folder",
         subtype='DIR_PATH',
-        description="Select the folder containing the FBX and texture files exported from Assets Studio.\n"
-        'For example, D:/AssetsStudioOutput/Animator/Aris_Original'
+        description="Select the folder containing the FBX and texture files exported from Assets Studio."
     )  # type: ignore
 
     def execute(self, context):
