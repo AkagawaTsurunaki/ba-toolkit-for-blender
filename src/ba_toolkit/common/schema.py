@@ -1,6 +1,14 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+import json
 from pathlib import Path
-from typing import List, Union
+from typing import Any, List, Union
+
+
+def _json_default(obj: Any) -> Any:
+    if isinstance(obj, Path):
+        return str(obj)
+    raise TypeError(
+        f"Object of type {type(obj).__name__} is not JSON serializable")
 
 
 @dataclass
@@ -28,3 +36,21 @@ class Animator:
                 f'FBX path: {self.fbx_path}\n'
                 f'Textures: \n'
                 f'{texture_str}')
+
+
+@dataclass
+class Metadata:
+    animator: Animator
+    version: Union[List[int], None] = None
+
+    def __post_init__(self):
+        if self.version is None:
+            self.version = [0, 1, 0]
+
+    def to_json(self) -> str:
+        return json.dumps(
+            asdict(self),
+            default=_json_default,
+            ensure_ascii=False,
+            indent=4
+        )
