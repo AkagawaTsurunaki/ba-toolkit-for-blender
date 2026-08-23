@@ -33,11 +33,7 @@ def get_animator_schema(dir: Path, anim_type="Original"):
     assert len(fbx_paths) == 1, (f'There should be only 1 FBX model file in {dir}:\n'
                                  f'{fbx_paths}')
     fbx_path: Path = fbx_paths[0]
-    print(fbx_path)
-
     ch_name = fbx_path.stem.split('_')[0]
-    print(ch_name)
-
     textures = _get_textures_schema(dir=dir, ch_name=ch_name, anim_type=anim_type)
 
     result = Animator(ch_name=ch_name, fbx_path=fbx_path, textures=textures)

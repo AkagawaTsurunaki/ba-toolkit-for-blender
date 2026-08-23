@@ -1,4 +1,4 @@
-from .operators import model_importer, mouth_separator
+from .operators import model_importer, mouth_separator, texture_fixer
 import bpy
 
 
@@ -29,7 +29,10 @@ class BAToolkitPanel(bpy.types.Panel):
             if row is not None:
                 row.operator(model_importer.ModelImporter.bl_idname,
                              icon=model_importer.ModelImporter.bl_icon)  # type: ignore
-
+            row = layout.row()
+            if row is not None:
+                row.operator(texture_fixer.TextureFixer.bl_idname,
+                             icon=texture_fixer.TextureFixer.bl_icon)  # type: ignore
             row = layout.row()
             if row is not None:
                 row.operator(mouth_separator.MouthSeparator.bl_idname,
@@ -38,12 +41,14 @@ class BAToolkitPanel(bpy.types.Panel):
 
 def register():
     bpy.utils.register_class(model_importer.ModelImporter)
+    bpy.utils.register_class(texture_fixer.TextureFixer)
     bpy.utils.register_class(mouth_separator.MouthSeparator)
     bpy.utils.register_class(BAToolkitPanel)
 
 
 def unregister():
     bpy.utils.unregister_class(model_importer.ModelImporter)
+    bpy.utils.unregister_class(texture_fixer.TextureFixer)
     bpy.utils.unregister_class(mouth_separator.MouthSeparator)
     bpy.utils.unregister_class(BAToolkitPanel)
 

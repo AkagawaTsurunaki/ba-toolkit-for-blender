@@ -54,3 +54,31 @@ class Metadata:
             ensure_ascii=False,
             indent=4
         )
+    
+    @classmethod
+    def from_json(cls, json_str: str) -> 'Metadata':
+        data = json.loads(json_str)
+        return cls.from_dict(data)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Metadata':
+        animator_data = data.get('animator')
+        if not animator_data:
+            raise ValueError("Missing 'animator' field")
+
+        textures = []
+        for tex_data in animator_data.get('textures', []):
+            textures.append(Texture(
+                type=tex_data.get('type'),
+                part=tex_data['part'],
+                path=Path(tex_data['path'])
+            ))
+
+        animator = Animator(
+            ch_name=animator_data['ch_name'],
+            fbx_path=Path(animator_data['fbx_path']),
+            textures=textures
+        )
+
+        version = data.get('version')
+        return cls(animator=animator, version=version)
