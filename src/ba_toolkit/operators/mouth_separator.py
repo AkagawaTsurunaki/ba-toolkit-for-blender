@@ -1,10 +1,11 @@
-from mathutils.bvhtree import BVHTree  # type: ignore
-from mathutils import Vector  # type: ignore
+from mathutils.bvhtree import BVHTree
+from mathutils import Vector
 import re
 from typing import List
 
-import bpy  # type: ignore
-import bmesh  # type: ignore
+import bpy
+import bmesh
+from ..common.utils import find_meshes
 
 
 def _find_armatures(root):
@@ -21,21 +22,6 @@ def _find_armatures(root):
                 _search(obj_in_coll)
 
     _search(root)
-    return found
-
-
-def _find_meshes(root_obj, pattern=None):
-    found = []
-
-    def _search(obj):
-        if obj.type == 'MESH':
-            name = obj.name
-            if (pattern is None) or (pattern and re.search(pattern, name)):
-                found.append(obj)
-        for child in obj.children:
-            _search(child)
-
-    _search(root_obj)
     return found
 
 
@@ -84,13 +70,13 @@ class MouthSeparator(bpy.types.Operator):
     bl_label = "Auto Separate Mouth (EXP)"
     bl_options = {'REGISTER', 'UNDO'}
     bl_icon = 'MESH_MONKEY'
-    bl_description = "Automatically separate the mouth area of the selected character model as a new mesh object. \n"\
-        "Raycast based algorithm is used and may not be successful for all models. "\
-        "If it fails, try separating the mouth area manually:\n"\
-        "1. Select the mouth faces in Edit Mode.\n"\
-        "2. Press L to link faces.\n"\
-        "3. Press Alt+M to split the linked faces.\n"\
-        "4. Press P to separate the selected faces as a new mesh object"
+    bl_description = "Automatically separate the mouth area of the selected character model as a new mesh object. \n" \
+                     "Raycast based algorithm is used and may not be successful for all models. " \
+                     "If it fails, try separating the mouth area manually:\n" \
+                     "1. Select the mouth faces in Edit Mode.\n" \
+                     "2. Press L to link faces.\n" \
+                     "3. Press Alt+M to split the linked faces.\n" \
+                     "4. Press P to separate the selected faces as a new mesh object"
 
     def execute(self, context):
         # @AUTHOR AkagawaTsurunaki
@@ -124,8 +110,9 @@ class MouthSeparator(bpy.types.Operator):
 
         # Find the mesh whose name contains "Body", e.g., "Midori_Original_Body".
         # Assumes only one such mesh exists.
-        meshes = _find_meshes(ch_obj, pattern="Body")
-        assert len(meshes) == 1, f'There should be exactly one mesh containing "Head" in the name. Now we have:\n{meshes}'
+        meshes = find_meshes(ch_obj, pattern="Body")
+        assert len(meshes) == 1, \
+            f'There should be exactly one mesh containing "Head" in the name. Now we have:\n{meshes}'
         mesh = meshes[0]
 
         # Raycast in 2 modes
@@ -137,8 +124,7 @@ class MouthSeparator(bpy.types.Operator):
                 mesh, origin, -direction)
 
         if not hit:
-            self.report(
-                {'ERROR'}, "Raycast did not hit any face. Try separating mouth faces manually.")
+            self.report({'ERROR'}, "Raycast did not hit any face. Try separating mouth faces manually.")
             return {'CANCELLED'}
 
         # Separate the selected faces as a new mesh object
@@ -155,7 +141,7 @@ class MouthSeparator(bpy.types.Operator):
 
         hit_local = mesh.matrix_world.inverted() @ hit
         target_face = min(bm.faces, key=lambda f: (
-            f.calc_center_median() - hit_local).length)
+                f.calc_center_median() - hit_local).length)
         target_face.select = True
         bmesh.update_edit_mesh(mesh.data)
 
@@ -174,6 +160,6 @@ class MouthSeparator(bpy.types.Operator):
                 obj.name = f"{mesh.name}_Mouth"
                 break
 
-        self.report(
-            {'INFO'}, f"Separated mouth mesh from {mesh} successfully. Check it if it is correct. If not, try separating mouth faces manually.")
+        self.report({'INFO'}, f"Separated mouth mesh from {mesh} successfully. "
+                              f"Check it if it is correct. If not, try separating mouth faces manually.")
         return {'FINISHED'}

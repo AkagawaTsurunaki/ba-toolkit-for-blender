@@ -1,11 +1,10 @@
-import json
 from pathlib import Path
 
-import bpy  # type: ignore
-from bpy.props import StringProperty  # type: ignore
+import bpy
+from bpy.props import StringProperty
 
-from ..common.schema import Metadata
 from ..common.analyzer import get_animator_schema
+from ..common.schema import Metadata
 
 
 class ModelImporter(bpy.types.Operator):
@@ -13,13 +12,13 @@ class ModelImporter(bpy.types.Operator):
     bl_label = "Import from Folder"
     bl_options = {'REGISTER', 'UNDO'}
     bl_icon = 'IMPORT'
-    bl_description = "Import model from specific folder containing FBX and texture files (.png) exported from Assets Studio.\n"\
-        "For example, D:/AssetsStudioOutput/Animator/Aris_Original"
+    bl_description = "Import model from specific folder containing FBX and texture files (.png) exported from Assets Studio.\n" \
+                     "For example, D:/AssetsStudioOutput/Animator/Aris_Original"
     directory: StringProperty(
         name="Model Folder",
         subtype='DIR_PATH',
         description="Select the folder containing the FBX and texture files exported from Assets Studio."
-    )  # type: ignore
+    )
     METADATA_KEY = "ba-toolkit.model.metadata.json"
 
     def execute(self, context):
@@ -48,7 +47,7 @@ class ModelImporter(bpy.types.Operator):
         top_level_objs = [o for o in new_objs if o.parent is None]
         assert len(top_level_objs) == 1
         root = top_level_objs[0]
-        
+
         # Here change the root name
         root.name = anim.ch_name
 
@@ -56,7 +55,7 @@ class ModelImporter(bpy.types.Operator):
         metadata = Metadata(animator=anim)
         metadata_json = metadata.to_json()
         root["ba_toolkit_metadata.json"] = metadata_json
-        
+
         self.report({"INFO"}, f'Imported "{anim.ch_name}" successfully, metadata injected.')
 
         return {'FINISHED'}
