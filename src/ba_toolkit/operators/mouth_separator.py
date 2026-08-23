@@ -67,11 +67,14 @@ def _raycast_against_mesh(mesh_obj, origin_world, direction_world, max_dist=10.0
 
 class MouthSeparator(bpy.types.Operator):
     bl_idname = "ba_toolkit_for_blender.mouth_separator"
-    bl_label = "Auto Separate Mouth (EXP)"
+    bl_label = "Auto Separate Mouth"
     bl_options = {'REGISTER', 'UNDO'}
     bl_icon = 'MESH_MONKEY'
     bl_description = "Automatically separate the mouth area of the selected character model as a new mesh object. \n" \
-                     "Raycast based algorithm is used and may not be successful for all models. " \
+                     "Raycast based algorithm is used and may not be successful for all models. \n" \
+                     "Instructions:\n" \
+                     "1. Select the imported model\'s root object in the Hierarchy panel.\n" \
+                     '2. Click "Auto Separate Mouth."\n' \
                      "If it fails, try separating the mouth area manually:\n" \
                      "1. Select the mouth faces in Edit Mode.\n" \
                      "2. Press L to link faces.\n" \

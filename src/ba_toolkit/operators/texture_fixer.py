@@ -90,10 +90,14 @@ def _get_mask_texture(textures: List[Texture], texture_main: Texture) -> Texture
 
 class TextureFixer(bpy.types.Operator):
     bl_idname = "ba_toolkit_for_blender.texture_fixer"
-    bl_label = "Auto Fix Textures"
+    bl_label = "Auto Fix Textures (EXP)"
     bl_options = {'REGISTER', 'UNDO'}
     bl_icon = 'TEXTURE'
-    bl_description = ''
+    bl_description = 'Automatically assigns textures to the corresponding meshes of the imported model by matching texture file names.\n' \
+                     'Note: This feature is experimental; it may fail or assign textures to incorrect meshes.\n' \
+                     'Instructions:\n' \
+                     '1. Select the imported model\'s root object in the Hierarchy panel.\n' \
+                     '2. Click "Auto Fix Textures (EXP)"'
 
     def execute(self, context):
         ch_obj = bpy.context.active_object
