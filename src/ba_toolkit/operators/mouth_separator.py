@@ -24,12 +24,14 @@ def _find_armatures(root):
     return found
 
 
-def _find_meshes(root_obj):
+def _find_meshes(root_obj, pattern=None):
     found = []
 
     def _search(obj):
         if obj.type == 'MESH':
-            found.append(obj)
+            name = obj.name
+            if (pattern is None) or (pattern and re.search(pattern, name, re.IGNORECASE)):
+                found.append(obj)
         for child in obj.children:
             _search(child)
 
@@ -83,12 +85,12 @@ class MouthSeparator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     bl_icon = 'MESH_MONKEY'
     bl_description = "Automatically separate the mouth area of the selected character model as a new mesh object. \n"\
-    "Raycast based algorithm is used and may not be successful for all models. "\
-    "If it fails, try separating the mouth area manually:\n"\
-    "1. Select the mouth faces in Edit Mode.\n"\
-    "2. Press L to link faces.\n"\
-    "3. Press Alt+M to split the linked faces.\n"\
-    "4. Press P to separate the selected faces as a new mesh object"
+        "Raycast based algorithm is used and may not be successful for all models. "\
+        "If it fails, try separating the mouth area manually:\n"\
+        "1. Select the mouth faces in Edit Mode.\n"\
+        "2. Press L to link faces.\n"\
+        "3. Press Alt+M to split the linked faces.\n"\
+        "4. Press P to separate the selected faces as a new mesh object"
 
     def execute(self, context):
         # @AUTHOR AkagawaTsurunaki
@@ -120,8 +122,10 @@ class MouthSeparator(bpy.types.Operator):
         origin = _get_bone_world_pos(armature, head_bone, use_head=True)
         direction = Vector((0, 1, 0))
 
-        meshes = _find_meshes(ch_obj)
-        assert len(meshes) >= 1, "No mesh found under selected object"
+        # Find the mesh whose name contains "Body", e.g., "Midori_Original_Body".
+        # Assumes only one such mesh exists.
+        meshes = _find_meshes(ch_obj, pattern="Body")
+        assert len(meshes) == 1, f'There should be exactly one mesh containing "Head" in the name. Now we have:\n{meshes}'
         mesh = meshes[0]
 
         # Raycast in 2 modes
@@ -171,5 +175,5 @@ class MouthSeparator(bpy.types.Operator):
                 break
 
         self.report(
-            {'INFO'}, "Separated mouth mesh successfully. Check it if it is correct. If not, try separating mouth faces manually.")
+            {'INFO'}, f"Separated mouth mesh from {mesh} successfully. Check it if it is correct. If not, try separating mouth faces manually.")
         return {'FINISHED'}
