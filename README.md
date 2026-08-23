@@ -6,7 +6,7 @@ and automatically separates the mouth mesh then binds it to a mouth controller, 
 
 ## Installation
 
-1. Download the latest `.zip` from [Releases](#).
+1. Download the latest `.zip` from [Releases](https://github.com/AkagawaTsurunaki/ba-toolkit-for-blender/releases/latest).
 2. Drag and drop the `.zip` directly into the Blender window.
 
 ## How to use?
