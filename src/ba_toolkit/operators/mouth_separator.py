@@ -30,7 +30,7 @@ def _find_meshes(root_obj, pattern=None):
     def _search(obj):
         if obj.type == 'MESH':
             name = obj.name
-            if (pattern is None) or (pattern and re.search(pattern, name, re.IGNORECASE)):
+            if (pattern is None) or (pattern and re.search(pattern, name)):
                 found.append(obj)
         for child in obj.children:
             _search(child)
@@ -46,7 +46,7 @@ def _find_bones_by_pattern(obj, pattern) -> List[bpy.types.Bone]:
     matched = []
     for bone in obj.data.bones:
         name = bone.name
-        if re.search(pattern, name, re.IGNORECASE):
+        if re.search(pattern, name):
             matched.append(bone)
 
     return matched
