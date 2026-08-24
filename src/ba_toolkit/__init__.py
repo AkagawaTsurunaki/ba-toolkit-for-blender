@@ -4,7 +4,7 @@ import bpy
 bl_info = {
     "name": "BA Toolkit for Blender",
     "author": "AkagawaTsurunaki",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (4, 5, 6),
     "location": "View3D > Sidebar > BA Toolkit",
     "description": "This toolkit is a helpful Blender add‑on for creating 3D animations using Blue Archive models. "

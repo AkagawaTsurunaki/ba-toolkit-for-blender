@@ -6,17 +6,24 @@ from .schema import Animator, Texture
 
 def _get_textures_schema(dir: Path, ch_name: str, anim_type: str) -> List[Texture]:
     # `ch_name` and `anim_type` use for checking the consistency only.
+    # <ch_name>.png
+    # <ch_name>_<anim_type>_<part_name>.png
+    # <ch_name>_<anim_type>_<part_name>_<type_name>.png
     textures = []
 
     for texture_file in dir.glob('*.png'):
-        assert texture_file.stem.split('_')[0] == ch_name
-        # assert texture_file.stem.split('_')[1] == anim_type
-        part_name = texture_file.stem.split('_')[2]
-        try:
+        splits = texture_file.stem.split('_')
+        if len(splits) >= 1:
+            assert texture_file.stem.split('_')[0] == ch_name
+
+        part_name = ""
+        if len(splits) == 3:
+            part_name = texture_file.stem.split('_')[2]
+
+        type_name = None
+        if len(splits) == 4:
             type_name = texture_file.stem.split('_')[3]
-        except IndexError:
-            type_name = None
-        # print(f"{ch_name} {part_name} {type_name}")
+
         texture = Texture(type=type_name, part=part_name, path=texture_file)
         textures.append(texture)
 
