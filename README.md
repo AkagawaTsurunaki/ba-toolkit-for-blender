@@ -8,7 +8,7 @@ and automatically separates the mouth mesh then binds it to a mouth controller, 
 
 Minimum Blender version: 4.5.6 LTS
 
-Tested Blender version: 4.5.6 LTS, 5.0.2 LTS
+Tested Blender version: 4.5.6 LTS, 5.2.0 LTS
 
 Other versions are untested.
 
