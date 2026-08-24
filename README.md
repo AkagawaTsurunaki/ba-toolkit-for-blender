@@ -7,9 +7,12 @@ and automatically separates the mouth mesh then binds it to a mouth controller, 
 ## Installation
 
 Minimum Blender version: 4.5.6 LTS
+
 Tested Blender version: 4.5.6 LTS, 5.0.2 LTS
+
 Other versions are untested.
 
+**Instructions:**
 1. Download the latest `.zip` from [Releases](https://github.com/AkagawaTsurunaki/ba-toolkit-for-blender/releases/latest).
 2. Drag and drop the `.zip` directly into the Blender window.
 
