@@ -2,6 +2,8 @@ from pathlib import Path
 
 import bpy
 
+from ..common.utils import find_parent_with_metadata, find_armatures
+
 
 class MouthBinder(bpy.types.Operator):
     bl_idname = "ba_toolkit_for_blender.mouth_binder"
@@ -31,6 +33,27 @@ class MouthBinder(bpy.types.Operator):
 
         imported = dst.collections[0]
         imported.name = f"{mouth.name} Controller"
+
+        # Set `Controller` as the child of `bone_root`
+        # This will traverse up to find the root object which contains metadata
+        controller: bpy.types.Object = next(
+            (o for o in imported.objects if o.type == 'ARMATURE' and 'controller' in o.name.lower()),
+            None
+        )
+        ch_obj = find_parent_with_metadata(mouth)
+        armatures = find_armatures(ch_obj, pattern="bone_root")
+        assert len(armatures) == 1, \
+            f'There should be exactly one armature in {ch_obj.name}. Now we have:\n{armatures}'
+        bone_root = armatures[0]
+
+        # Here set the parent.
+        # DO NOT set all objects of the collection imported as the children of the `bone_root`!
+        # Note that the default transform of the controller is changed here.
+        controller.parent = bone_root
+        controller.location = (0, 0, 0)
+        controller.rotation_euler = (0, 0, 0)
+        controller.scale = (1.0, 1.0, 1.0)
+
         context.scene.collection.children.link(imported)
 
         # Find the mouth template in the collection
@@ -39,7 +62,7 @@ class MouthBinder(bpy.types.Operator):
             None
         )
         if not template:
-            self.report({'ERROR'}, 'Mouth Template is None? Did you modify assets/Mouth_BlackMaLou.blend?')
+            self.report({'ERROR'}, f'Mouth Template is None? Did you modify "{template_path}"?')
             return {'CANCELLED'}
 
         # Delete all old materials!
