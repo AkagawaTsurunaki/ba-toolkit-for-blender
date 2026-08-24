@@ -49,5 +49,5 @@ class MouthBinder(bpy.types.Operator):
         for mat in template.data.materials:
             mouth.data.materials.append(mat)
 
-        self.report({'INFO'}, f"Bind {template.name} to {mouth.name} successfully!")
+        self.report({'INFO'}, f"Bound {template.name} to {mouth.name} successfully!")
         return {'FINISHED'}

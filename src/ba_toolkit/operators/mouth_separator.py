@@ -74,7 +74,7 @@ class MouthSeparator(bpy.types.Operator):
                      "Raycast based algorithm is used and may not be successful for all models. \n" \
                      "Instructions:\n" \
                      "1. Select the imported model\'s root object in the Hierarchy panel.\n" \
-                     '2. Click "Auto Separate Mouth."\n' \
+                     '2. Click "Auto Separate Mouth".\n' \
                      "If it fails, try separating the mouth area manually:\n" \
                      "1. Select the mouth faces in Edit Mode.\n" \
                      "2. Press L to link faces.\n" \
