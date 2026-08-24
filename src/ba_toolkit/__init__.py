@@ -1,4 +1,4 @@
-from .operators import model_importer, mouth_separator, texture_fixer, mouth_binder
+from .operators import model_importer, mouth_separator, texture_fixer, mouth_binder, halo_binder
 import bpy
 
 bl_info = {
@@ -43,6 +43,10 @@ class BAToolkitPanel(bpy.types.Panel):
             if row is not None:
                 row.operator(mouth_binder.MouthBinder.bl_idname,
                              icon=mouth_binder.MouthBinder.bl_icon)
+            row = layout.row()
+            if row is not None:
+                row.operator(halo_binder.HaloAnimBinder.bl_idname,
+                             icon=halo_binder.HaloAnimBinder.bl_icon)
 
 
 def register():
@@ -50,6 +54,7 @@ def register():
     bpy.utils.register_class(texture_fixer.TextureFixer)
     bpy.utils.register_class(mouth_separator.MouthSeparator)
     bpy.utils.register_class(mouth_binder.MouthBinder)
+    bpy.utils.register_class(halo_binder.HaloAnimBinder)
     bpy.utils.register_class(BAToolkitPanel)
 
 
@@ -58,6 +63,7 @@ def unregister():
     bpy.utils.unregister_class(texture_fixer.TextureFixer)
     bpy.utils.unregister_class(mouth_separator.MouthSeparator)
     bpy.utils.unregister_class(mouth_binder.MouthBinder)
+    bpy.utils.unregister_class(halo_binder.HaloAnimBinder)
     bpy.utils.unregister_class(BAToolkitPanel)
 
 
