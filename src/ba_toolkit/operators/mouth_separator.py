@@ -1,41 +1,10 @@
 from mathutils.bvhtree import BVHTree
 from mathutils import Vector
-import re
-from typing import List
+
 
 import bpy
 import bmesh
-from ..common.utils import find_meshes
-
-
-def _find_armatures(root):
-    found = []
-
-    def _search(obj):
-        if hasattr(obj, 'type') and obj.type == 'ARMATURE':
-            found.append(obj)
-        if hasattr(obj, 'children'):
-            for child in obj.children:
-                _search(child)
-        if hasattr(obj, 'objects'):
-            for obj_in_coll in obj.objects:
-                _search(obj_in_coll)
-
-    _search(root)
-    return found
-
-
-def _find_bones_by_pattern(obj, pattern) -> List[bpy.types.Bone]:
-    if not obj or obj.type != 'ARMATURE':
-        return []
-
-    matched = []
-    for bone in obj.data.bones:
-        name = bone.name
-        if re.search(pattern, name):
-            matched.append(bone)
-
-    return matched
+from ..common.utils import find_meshes, find_armatures, find_bones
 
 
 def _get_bone_world_pos(armature_obj, bone, use_head=True):
@@ -97,11 +66,11 @@ class MouthSeparator(bpy.types.Operator):
         # 4. Link, split and separate the selected faces as a MOUTH mesh.
 
         ch_obj = bpy.context.active_object
-        armatures = _find_armatures(ch_obj)
+        armatures = find_armatures(ch_obj)
         assert len(armatures) == 1, \
             f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
         armature = armatures[0]
-        head_bones = _find_bones_by_pattern(armature, R"Head")
+        head_bones = find_bones(armature, "Head")
 
         assert len(head_bones) == 1, \
             f'There should be exactly one bone containing "Head" in the name. Now we have:\n{head_bones}'
