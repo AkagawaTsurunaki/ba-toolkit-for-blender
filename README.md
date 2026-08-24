@@ -6,6 +6,10 @@ and automatically separates the mouth mesh then binds it to a mouth controller, 
 
 ## Installation
 
+Minimum Blender version: 4.5.6 LTS
+Tested Blender version: 4.5.6 LTS, 5.0.2 LTS
+Other versions are untested.
+
 1. Download the latest `.zip` from [Releases](https://github.com/AkagawaTsurunaki/ba-toolkit-for-blender/releases/latest).
 2. Drag and drop the `.zip` directly into the Blender window.
 
@@ -28,6 +32,7 @@ Automatically assigns textures to the corresponding meshes of the imported model
 
 > [!WARNING] 
 > This feature is experimental; it may fail or assign textures to incorrect meshes.
+> If there is no texture issue, DO NOT click this button!
 
 **Instructions:**
 1. Select the imported model's root object in the Hierarchy panel.
@@ -56,6 +61,9 @@ If it fails, try separating the mouth area manually:
 ### Bind Mouth to Selected
 
 Bind mouth controller to selected mesh.
+
+> [!WARNING] 
+> This operation will remove all materials of the selected mesh.
 
 **Instructions:**
 1. Select the mouth mesh (e.g., `Aris_Origin_Body_Mouth`).
