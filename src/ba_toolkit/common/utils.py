@@ -22,12 +22,13 @@ def find_objs(root_obj, obj_type=None, pattern=None):
     return found
 
 
-def find_armatures(root):
+def find_armatures(root, pattern=None):
     found = []
 
     def _search(obj):
         if hasattr(obj, 'type') and obj.type == 'ARMATURE':
-            found.append(obj)
+            if (pattern is None) or (pattern is not None and re.search(pattern, obj.name)):
+                found.append(obj)
         if hasattr(obj, 'children'):
             for child in obj.children:
                 _search(child)
@@ -50,3 +51,12 @@ def find_bones(obj, pattern) -> List[bpy.types.Bone]:
             matched.append(bone)
 
     return matched
+
+
+def find_parent_with_metadata(obj):
+    if obj is None:
+        return None
+    else:
+        if obj.get('ba_toolkit_metadata.json', None):
+            return obj
+        return find_parent_with_metadata(obj.parent)

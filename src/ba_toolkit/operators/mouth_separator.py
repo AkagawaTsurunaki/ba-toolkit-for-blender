@@ -66,7 +66,7 @@ class MouthSeparator(bpy.types.Operator):
         # 4. Link, split and separate the selected faces as a MOUTH mesh.
 
         ch_obj = bpy.context.active_object
-        armatures = find_armatures(ch_obj)
+        armatures = find_armatures(ch_obj, pattern="bone_root")
         assert len(armatures) == 1, \
             f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
         armature = armatures[0]

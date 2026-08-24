@@ -24,7 +24,7 @@ class HaloAnimBinder(bpy.types.Operator):
             f"There should be exactly one object in the hierarchy. Now we have:\n{halo_roots}"
         halo_root = halo_roots[0]
 
-        armatures = find_armatures(ch_obj)
+        armatures = find_armatures(ch_obj, pattern="bone_root")
         assert len(armatures) == 1, \
             f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
         armature = armatures[0]
