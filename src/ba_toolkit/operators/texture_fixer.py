@@ -61,7 +61,6 @@ def _setup_material(name: str, path_main: Path, path_mask: Path | None) -> bpy.t
 
     # Optional normal map
     if path_mask:
-        print(f">>>>>>>>>>>>>>>>>> {path_mask}")
         tex_n = nodes.new("ShaderNodeTexImage")
         tex_n.location = (-400, -250)
         tex_n.image = bpy.data.images.load(str(path_mask), check_existing=True)
@@ -79,7 +78,6 @@ def _get_mask_texture(textures: List[Texture], texture_main: Texture) -> Texture
     for texture in textures:
         if texture.part == texture_main.part and texture.type is not None:
             if texture.type.lower() == "mask":
-                print(f"!!!!!!!!!!!!!!!!! {texture}")
                 ret.append(texture)
 
     if len(ret) == 1:
