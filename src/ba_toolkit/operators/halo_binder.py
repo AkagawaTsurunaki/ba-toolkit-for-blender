@@ -1,6 +1,6 @@
 import bpy
 
-from ..common.utils import find_objs, find_bones, find_armatures
+from ..common.utils import find_objs, find_bones, find_root_armature
 
 
 class HaloAnimBinder(bpy.types.Operator):
@@ -24,18 +24,15 @@ class HaloAnimBinder(bpy.types.Operator):
             f"There should be exactly one object in the hierarchy. Now we have:\n{halo_roots}"
         halo_root = halo_roots[0]
 
-        armatures = find_armatures(ch_obj, pattern="bone_root")
-        assert len(armatures) == 1, \
-            f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
-        armature = armatures[0]
+        bone_root = find_root_armature(ch_obj)
 
-        bones = find_bones(armature, pattern="Head")
+        bones = find_bones(bone_root, pattern="Head")
         assert len(bones) == 1, \
             f'There should be exactly one bone containing "Head" in its name. Now we have:\n{armatures}'
         head_bone = bones[0]
 
         world_matrix = halo_root.matrix_world.copy()
-        halo_root.parent = armature
+        halo_root.parent = bone_root
         halo_root.parent_type = 'BONE'
         halo_root.parent_bone = head_bone.name
         halo_root.matrix_world = world_matrix

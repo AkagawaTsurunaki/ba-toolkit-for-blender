@@ -4,7 +4,7 @@ from mathutils import Vector
 
 import bpy
 import bmesh
-from ..common.utils import find_meshes, find_armatures, find_bones
+from ..common.utils import find_meshes, find_bones, find_root_armature
 
 
 def _get_bone_world_pos(armature_obj, bone, use_head=True):
@@ -66,18 +66,15 @@ class MouthSeparator(bpy.types.Operator):
         # 4. Link, split and separate the selected faces as a MOUTH mesh.
 
         ch_obj = bpy.context.active_object
-        armatures = find_armatures(ch_obj, pattern="bone_root")
-        assert len(armatures) == 1, \
-            f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
-        armature = armatures[0]
-        head_bones = find_bones(armature, "Head")
+        bone_root = find_root_armature(ch_obj)
+        head_bones = find_bones(bone_root, "Head")
 
         assert len(head_bones) == 1, \
             f'There should be exactly one bone containing "Head" in the name. Now we have:\n{head_bones}'
         head_bone = head_bones[0]
 
         # Get head bone origin position in world space
-        origin = _get_bone_world_pos(armature, head_bone, use_head=True)
+        origin = _get_bone_world_pos(bone_root, head_bone, use_head=True)
         direction = Vector((0, 1, 0))
 
         # Find the mesh whose name contains "Body", e.g., "Midori_Original_Body".

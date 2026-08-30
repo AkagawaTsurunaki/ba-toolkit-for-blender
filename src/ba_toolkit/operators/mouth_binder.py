@@ -2,7 +2,7 @@ from pathlib import Path
 
 import bpy
 
-from ..common.utils import find_parent_with_metadata, find_armatures
+from ..common.utils import find_parent_with_metadata, find_root_armature
 
 
 class MouthBinder(bpy.types.Operator):
@@ -41,10 +41,7 @@ class MouthBinder(bpy.types.Operator):
             None
         )
         ch_obj = find_parent_with_metadata(mouth)
-        armatures = find_armatures(ch_obj, pattern="bone_root")
-        assert len(armatures) == 1, \
-            f'There should be exactly one armature in {ch_obj.name}. Now we have:\n{armatures}'
-        bone_root = armatures[0]
+        bone_root = find_root_armature(ch_obj)
 
         # Here set the parent.
         # DO NOT set all objects of the collection imported as the children of the `bone_root`!

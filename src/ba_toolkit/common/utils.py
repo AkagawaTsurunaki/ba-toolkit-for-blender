@@ -60,3 +60,20 @@ def find_parent_with_metadata(obj):
         if obj.get('ba_toolkit_metadata.json', None):
             return obj
         return find_parent_with_metadata(obj.parent)
+
+
+def find_root_armature(ch_obj):
+    # 1. Some good models may just contain `bone_root` as the only armature
+    # 2. But some may name its armature as the character's name, so fallback method we will search all armatures.
+    armatures = find_armatures(ch_obj, pattern="bone_root")
+    if len(armatures) > 0:
+        assert len(armatures) == 1, \
+            (f"There should be exactly one armature with name pattern `bone_root` in the hierarchy. "
+             f"Now we have:\n{armatures}")
+        return armatures[0]
+    else:
+        armatures = find_armatures(ch_obj)
+        if len(armatures) > 0:
+            assert len(armatures) == 1, \
+                f"There should be exactly one armature in the hierarchy. Now we have:\n{armatures}"
+        return armatures[0]
